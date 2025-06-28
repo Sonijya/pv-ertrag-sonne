@@ -101,13 +101,16 @@
         const albedo = 0.2;
 
         const pvgisUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lng}&year=${jahr}`;
+        const proxyUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lon}&year=${jahr}&angle=${dachwinkel}&aspect=${ausrichtung}`;
+
 
         console.log("Rufe PVGIS-API auf mit URL:", pvgisUrl);
 
         console.log("PVGIS-URL:", pvgisUrl);
 
 
-        const res = await fetch(pvgisUrl);
+        const res = await fetch(proxyUrl);
+
         if (!res.ok) {
             console.error("Fehler beim Abrufen der PVGIS-Daten:", res.statusText);
             alert("Fehler beim Abrufen der PVGIS-Daten.");
