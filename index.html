@@ -101,46 +101,33 @@
 
         const proxyUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lng}&year=${jahr}`;
         const res = await fetch(proxyUrl);
-
         if (!res.ok) {
             alert("Fehler beim Abrufen der PVGIS-Daten.");
             return;
         }
 
         const json = await res.json();
-        
-        console.log("🔍 Vollständige PVGIS-Antwort:");
-        console.log(JSON.stringify(json, null, 2));
-
-        if (!json.outputs || !json.outputs.hourly) {
-            alert("Die Daten enthalten keine Stundenwerte.");
-            return;
-        }
-
         const hourly = json.outputs.hourly.map(entry => ({
             time: entry.time,
-            Gb: entry['Gb(h)'] || 0,
-            Gd: entry['Gd(h)'] || 0
+            Gb: entry['G(i)'] || 0,
+            Gd: Math.max(0, (entry['G(h)'] || 0) - (entry['G(i)'] || 0)) // einfache Näherung
         }));
 
-       const monatsertrag = Array(12).fill(0);
-        let zähler = 0;
+        const parseZeit = (str) => {
+            const [datum, uhrzeit] = str.split(':');
+            const jahr = datum.slice(0, 4);
+            const monat = datum.slice(4, 6);
+            const tag = datum.slice(6, 8);
+            const stunde = uhrzeit.slice(0, 2);
+            const minute = uhrzeit.slice(2, 4);
+            return new Date(`${jahr}-${monat}-${tag}T${stunde}:${minute}:00`);
+        };
 
-    const parseZeit = (str) => {
-        const [datum, uhrzeit] = str.split(':');
-        const jahr = datum.slice(0, 4);
-        const monat = datum.slice(4, 6);
-        const tag = datum.slice(6, 8);
-        const stunde = uhrzeit.slice(0, 2);
-        const minute = uhrzeit.slice(2, 4);
-        return new Date(`${jahr}-${monat}-${tag}T${stunde}:${minute}:00`);
-    };
+        const monatsertrag = Array(12).fill(0);
 
-hourly.forEach(stunde => {
-    zähler++;
-    const zeit = parseZeit(stunde.time); // Statt: new Date(...)
-    const monat = zeit.getMonth();
-
+        hourly.forEach(stunde => {
+            const zeit = parseZeit(stunde.time);
+            const monat = zeit.getMonth();
 
             const pos = SunCalc.getPosition(zeit, lat, lng);
             const gammaS = pos.altitude;
