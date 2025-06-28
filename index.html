@@ -99,36 +99,30 @@
         const azimutModul = ausrichtung * Math.PI / 180;
         const albedo = 0.2;
 
-        const proxyUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lng}&year=${jahr}&angle=${dachwinkel}&aspect=${ausrichtung}`;
-        console.log("Rufe PVGIS-API auf mit URL:", proxyUrl);
-
+        const proxyUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lng}&year=${jahr}`;
         const res = await fetch(proxyUrl);
+
         if (!res.ok) {
-            console.error("Fehler beim Abrufen der PVGIS-Daten:", res.statusText);
             alert("Fehler beim Abrufen der PVGIS-Daten.");
             return;
         }
 
         const json = await res.json();
-        console.log("Antwort erhalten:", json);
 
         if (!json.outputs || !json.outputs.hourly) {
-            console.error("Fehlende Stundenwerte in der Antwort:", json.outputs);
             alert("Die Daten enthalten keine Stundenwerte.");
             return;
         }
 
         const hourly = json.outputs.hourly.map(entry => ({
             time: entry.time,
-            Gb: entry['G(i)'],
-            Gd: Math.max(0, entry['G(h)'] - entry['G(i)'])
+            Gb: entry['Gb(h)'] || 0,
+            Gd: entry['Gd(h)'] || 0
         }));
 
         const monatsertrag = Array(12).fill(0);
-        let zähler = 0;
 
         hourly.forEach(stunde => {
-            zähler++;
             const zeit = new Date(stunde.time);
             const monat = zeit.getMonth();
 
@@ -137,28 +131,19 @@
             const azimutS = pos.azimuth;
             if (gammaS <= 0) return;
 
-           const Gb = stunde.Gb || 0;
-            const Gd = stunde.Gd || 0;
+            const Gb = stunde.Gb;
+            const Gd = stunde.Gd;
 
             const cosTheta = Math.sin(gammaS) * Math.cos(beta) +
-                 Math.cos(gammaS) * Math.sin(beta) *
-                 Math.cos(azimutS - azimutModul);
+                             Math.cos(gammaS) * Math.sin(beta) * Math.cos(azimutS - azimutModul);
+            if (cosTheta <= 0) return;
 
-            if (cosTheta <= 0) return; // keine Einstrahlung auf Modulfläche
-
-const GbEffektiv = Gb * cosTheta;
-
-            const E_direkt = GbEffektiv;
+            const E_direkt = Gb * cosTheta;
             const E_diffus = Gd * (1 + Math.cos(beta)) / 2;
             const E_reflekt = (Gb + Gd) * albedo * (1 - Math.cos(beta)) / 2;
             const E_gesamt = E_direkt + E_diffus + E_reflekt;
 
-            if (zähler % 1000 === 0) {
-                console.log(`Monat: ${monat + 1}, Gb: ${Gb}, Gd: ${Gd}, E_gesamt: ${E_gesamt.toFixed(2)} kWh`);
-}
-
-
-            monatsertrag[monat] += E_gesamt * dachfl / 1000; // in kWh
+            monatsertrag[monat] += E_gesamt * dachfl / 1000; // Wh → kWh
         });
 
         const jahresertrag = monatsertrag.reduce((a, b) => a + b, 0);
@@ -193,7 +178,7 @@ const GbEffektiv = Gb * cosTheta;
         document.getElementById("exportCsv").onclick = () => {
             const zeilen = ["Monat;Ertrag (kWh)"];
             monatsertrag.forEach((wert, i) => {
-                zeilen.push(`${i+1};${wert.toFixed(2)}`);
+                zeilen.push(`${i + 1};${wert.toFixed(2)}`);
             });
             zeilen.push(`Gesamt;${jahresertrag.toFixed(2)}`);
             const blob = new Blob([zeilen.join("\n")], { type: 'text/csv' });
