@@ -100,8 +100,9 @@
         const azimutModul = ausrichtung * Math.PI / 180;
         const albedo = 0.2;
 
-        const pvgisUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lng}&year=${jahr}`;
+
         const proxyUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lon}&year=${jahr}&angle=${dachwinkel}&aspect=${ausrichtung}`;
+
 
 
         console.log("Rufe PVGIS-API auf mit URL:", pvgisUrl);
