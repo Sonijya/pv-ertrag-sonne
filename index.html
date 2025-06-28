@@ -120,11 +120,24 @@
             Gd: entry['Gd(h)'] || 0
         }));
 
-        const monatsertrag = Array(12).fill(0);
+       const monatsertrag = Array(12).fill(0);
+        let zähler = 0;
 
-        hourly.forEach(stunde => {
-            const zeit = new Date(stunde.time);
-            const monat = zeit.getMonth();
+    const parseZeit = (str) => {
+        const [datum, uhrzeit] = str.split(':');
+        const jahr = datum.slice(0, 4);
+        const monat = datum.slice(4, 6);
+        const tag = datum.slice(6, 8);
+        const stunde = uhrzeit.slice(0, 2);
+        const minute = uhrzeit.slice(2, 4);
+        return new Date(`${jahr}-${monat}-${tag}T${stunde}:${minute}:00`);
+    };
+
+hourly.forEach(stunde => {
+    zähler++;
+    const zeit = parseZeit(stunde.time); // Statt: new Date(...)
+    const monat = zeit.getMonth();
+
 
             const pos = SunCalc.getPosition(zeit, lat, lng);
             const gammaS = pos.altitude;
