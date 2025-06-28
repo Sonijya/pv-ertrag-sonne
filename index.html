@@ -120,8 +120,10 @@
 
         const hourly = json.outputs.hourly.map(entry => ({
             time: entry.time,
-            Gb: entry['Gb(h)'],
-            Gd: entry['Gd(h)']
+            Gb: entry['G(i)'],
+            Gd: Math.max(0, entry['G(h)'] - entry['G(i)']) // einfache Näherung für Diffus
+            }));
+
         }));
 
         const monatsertrag = Array(12).fill(0);
