@@ -139,6 +139,7 @@
 
             const Gb = stunde.Gb || 0;
             const Gd = stunde.Gd || 0;
+          
 
             const cosTheta = Math.sin(gammaS) * Math.cos(beta) + Math.cos(gammaS) * Math.sin(beta) * Math.cos(azimutS - azimutModul);
             const GbEffektiv = cosTheta > 0 ? Gb * cosTheta : 0;
