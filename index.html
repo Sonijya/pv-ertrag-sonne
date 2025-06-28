@@ -149,6 +149,12 @@
             const E_reflekt = (Gb + Gd) * albedo * (1 - Math.cos(beta)) / 2;
             const E_gesamt = E_direkt + E_diffus + E_reflekt;
 
+            console.log({
+                zeit: zeit.toISOString(),
+                Gb, Gd, E_direkt, E_diffus, E_reflekt, E_gesamt, cosTheta, gammaS, azimutS
+            });
+
+
             monatsertrag[monat] += E_gesamt * dachfl / 1000; // in kWh
 
             if (stunde.time.includes("2020-06-21T12:00")) {
