@@ -103,6 +103,9 @@
         const pvgisUrl = `https://re.jrc.ec.europa.eu/api/seriescalc?lat=${lat}&lon=${lng}&startyear=${jahr}&endyear=${jahr}&outputformat=json&browser=1&global=1&angle=0&aspect=0`;
         console.log("Rufe PVGIS-API auf mit URL:", pvgisUrl);
 
+        console.log("PVGIS-URL:", pvgisUrl);
+
+
         const res = await fetch(pvgisUrl);
         if (!res.ok) {
             console.error("Fehler beim Abrufen der PVGIS-Daten:", res.statusText);
