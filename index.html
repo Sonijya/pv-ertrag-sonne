@@ -140,8 +140,9 @@
             const cosTheta = Math.sin(gammaS) * Math.cos(beta) + Math.cos(gammaS) * Math.sin(beta) * Math.cos(azimutS - azimutModul);
             if (cosTheta < 0) return;
 
-            const Gb = stunde["Gb(h)"] || 0;
-            const Gd = stunde["Gd(h)"] || 0;
+            const Gb = stunde.Gb || 0;
+            const Gd = stunde.Gd || 0;
+
 
             const E_direkt = Gb * cosTheta;
             const E_diffus = Gd * (1 + Math.cos(beta)) / 2;
