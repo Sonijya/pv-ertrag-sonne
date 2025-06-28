@@ -100,7 +100,8 @@
         const azimutModul = ausrichtung * Math.PI / 180;
         const albedo = 0.2;
 
-        const pvgisUrl = `https://re.jrc.ec.europa.eu/api/seriescalc?lat=${lat}&lon=${lng}&startyear=${jahr}&endyear=${jahr}&outputformat=json&browser=1&global=1&angle=0&aspect=0`;
+        const pvgisUrl = `https://pvgis-proxy.vercel.app/api/pvgis?lat=${lat}&lon=${lng}&year=${jahr}`;
+
         console.log("Rufe PVGIS-API auf mit URL:", pvgisUrl);
 
         console.log("PVGIS-URL:", pvgisUrl);
