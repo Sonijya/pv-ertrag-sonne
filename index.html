@@ -140,15 +140,17 @@
             if (gammaS <= 0) return;
 
             const cosTheta = Math.sin(gammaS) * Math.cos(beta) + Math.cos(gammaS) * Math.sin(beta) * Math.cos(azimutS - azimutModul);
-            if (cosTheta < 0) return;
+            const GbEffektiv = cosTheta > 0 ? Gb * cosTheta : 0;
+
 
             const Gb = stunde.Gb || 0;
             const Gd = stunde.Gd || 0;
 
-            const E_direkt = Gb * cosTheta;
+            const E_direkt = GbEffektiv;
             const E_diffus = Gd * (1 + Math.cos(beta)) / 2;
             const E_reflekt = (Gb + Gd) * albedo * (1 - Math.cos(beta)) / 2;
             const E_gesamt = E_direkt + E_diffus + E_reflekt;
+
 
             monatsertrag[monat] += E_gesamt * dachfl / 1000; // in kWh
         });
