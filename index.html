@@ -137,17 +137,26 @@
             const azimutS = pos.azimuth;
             if (gammaS <= 0) return;
 
-            const Gb = stunde.Gb || 0;
+           const Gb = stunde.Gb || 0;
             const Gd = stunde.Gd || 0;
-          
 
-            const cosTheta = Math.sin(gammaS) * Math.cos(beta) + Math.cos(gammaS) * Math.sin(beta) * Math.cos(azimutS - azimutModul);
-            const GbEffektiv = cosTheta > 0 ? Gb * cosTheta : 0;
+            const cosTheta = Math.sin(gammaS) * Math.cos(beta) +
+                 Math.cos(gammaS) * Math.sin(beta) *
+                 Math.cos(azimutS - azimutModul);
+
+            if (cosTheta <= 0) return; // keine Einstrahlung auf Modulfläche
+
+const GbEffektiv = Gb * cosTheta;
 
             const E_direkt = GbEffektiv;
             const E_diffus = Gd * (1 + Math.cos(beta)) / 2;
             const E_reflekt = (Gb + Gd) * albedo * (1 - Math.cos(beta)) / 2;
             const E_gesamt = E_direkt + E_diffus + E_reflekt;
+
+            if (zähler % 1000 === 0) {
+                console.log(`Monat: ${monat + 1}, Gb: ${Gb}, Gd: ${Gd}, E_gesamt: ${E_gesamt.toFixed(2)} kWh`);
+}
+
 
             monatsertrag[monat] += E_gesamt * dachfl / 1000; // in kWh
         });
